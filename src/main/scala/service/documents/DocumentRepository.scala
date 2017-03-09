@@ -25,12 +25,26 @@ final class DocumentRepositoryImpl extends DocumentRepository {
     new Book("test book", "", "")
   )
 
-  def getTickets(docs: List[Document]):List[Ticket] = docs.foldRight(List[Ticket]())((a,b) => Ticket(a.watermark)::b)
+  val syncSet = scala.collection.mutable.LinkedHashSet.synchronized(documents)
+
+  def getTickets(docs: List[Document]):List[Ticket] = {
+    val t = docs.foldRight(List[Ticket]())((a,b) => Ticket(a.watermark)::b)
+
+    val n = docs.grouped(5)
+
+    def test(l: List[Document], acc: List[List[Document]], count: Int, temp: List[Document]): List[List[Document]] = l match {
+      case Nil => acc
+      case h :: t => if (count==0) test(t, temp::acc, 5, List()) else test(t, acc, count-1, h::temp)
+    }
+
+    n.flatMap(t => t.foldRight(List[Ticket]())((a,b) => Ticket(a.watermark)::b)).toList
+  }
 
   def getDocuments: Future[List[Ticket]] = Future.successful(getTickets(documents))
 
   def getDocument(search: String): Future[List[Ticket]] = {
     val t = documents.filter(d => d.title.contains(search))
+
     Future.successful(getTickets(t))
   }
 

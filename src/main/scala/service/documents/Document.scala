@@ -20,12 +20,9 @@ sealed trait Document {
   def noWatermark: Boolean
 }
 
-
-class Journal(t: String, a: String) extends Document {
+class Journal(val title: String, val author: String) extends Document {
 
   val content = "journal"
-  override val title: String = t
-  override val author: String = a
   override val watermark: String =
     if (noWatermark) empty + title
     else
@@ -34,12 +31,9 @@ class Journal(t: String, a: String) extends Document {
 }
 
 
-class Book(t: String, a: String, top: String) extends Document {
+class Book(val title: String, val author: String, val topic: String) extends Document {
 
-  val topic = top
   val content = "book"
-  override val title: String = t
-  override val author: String = a
   override val watermark: String =
     if (noWatermark) empty + title
     else

@@ -20,7 +20,7 @@ class DocumentService @Inject()(documentRepository: DocumentRepository) extends 
         complete(documentRepository.getDocuments)
       }
     } ~
-      path("document"/ """\w+""".r  ) {
+      path("document"/Segment  ) {
         r => complete(documentRepository.getDocument(r))
       } ~
       path("nowatermarks") {
